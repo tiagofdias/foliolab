@@ -166,8 +166,17 @@ export function attachLive(req, res, url) {
     time: new Date().toISOString(),
   });
   sync();
-  req.on("close", () => {
+  // End cleanly before the 300-second Hobby function limit; EventSource
+  // reconnects automatically and status badges downgrade during reconnect.
+  const expiry = process.env.VERCEL
+    ? setTimeout(() => res.end(), 240000)
+    : null;
+  const cleanup = () => {
+    if (expiry) clearTimeout(expiry);
+    if (!clients.has(client)) return;
     clients.delete(client);
     sync();
-  });
+  };
+  req.on("close", cleanup);
+  res.on("close", cleanup);
 }

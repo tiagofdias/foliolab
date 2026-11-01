@@ -7,16 +7,14 @@ const schema = [
 ];
 export async function openDatabase(env = process.env) {
   const remote = env.TURSO_DATABASE_URL;
-  if (env.REQUIRE_REMOTE_DB === "true" && (!remote || !env.TURSO_AUTH_TOKEN))
+  const requireRemote = env.REQUIRE_REMOTE_DB === "true" || !!env.VERCEL;
+  if (requireRemote && (!remote || !env.TURSO_AUTH_TOKEN))
     throw Error(
       "Persistent storage is required. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN before deploying.",
     );
   if (remote) {
     const url = new URL(remote);
-    if (
-      env.REQUIRE_REMOTE_DB === "true" &&
-      !["libsql:", "https:", "wss:"].includes(url.protocol)
-    )
+    if (requireRemote && !["libsql:", "https:", "wss:"].includes(url.protocol))
       throw Error(
         "The deployed database must use an encrypted remote connection.",
       );

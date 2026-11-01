@@ -1,4 +1,6 @@
 import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
+import { join, dirname } from "node:path";
+import { dataDirectory } from "./paths.mjs";
 import readXlsxFile from "read-excel-file/node";
 import {
   parseLondon,
@@ -66,7 +68,9 @@ const sources = [
 ];
 let memory = null,
   pending = null;
-const cachePath = process.env.CATALOG_PATH || "data/instrument-directory.json";
+const cachePath =
+  process.env.CATALOG_PATH ||
+  join(dataDirectory(), "instrument-directory.json");
 async function fetchText(url) {
   const r = await fetch(url, {
     signal: AbortSignal.timeout(18000),
@@ -223,7 +227,7 @@ export async function getCatalog() {
       );
     memory = snapshot;
     if (!process.env.CATALOG_NO_DISK) {
-      await mkdir("data", { recursive: true });
+      await mkdir(dirname(cachePath), { recursive: true });
       try {
         await writeFile(cachePath + ".tmp", JSON.stringify(snapshot));
         await rename(cachePath + ".tmp", cachePath);

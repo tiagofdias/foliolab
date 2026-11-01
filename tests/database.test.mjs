@@ -66,10 +66,16 @@ for (const mode of ["local", "libsql"])
       );
     } finally {
       db?.close();
-      await rm(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+      await rm(dir, {
+        recursive: true,
+        force: true,
+        maxRetries: 10,
+        retryDelay: 100,
+      });
     }
   });
 test("Render deployment refuses missing credentials and local or unencrypted storage", async () => {
+  await assert.rejects(openDatabase({ VERCEL: "1" }), /Persistent storage/);
   await assert.rejects(
     openDatabase({ REQUIRE_REMOTE_DB: "true" }),
     /Persistent storage/,

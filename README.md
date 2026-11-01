@@ -1,8 +1,8 @@
 # Folio Lab
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/select-repo?type=blueprint&repo=https%3A%2F%2Fgithub.com%2Ftiagofdias%2Ffoliolab)
+**Render alternative: [deploy on Vercel Hobby](https://vercel.com/new).** Import this repository and add your existing Turso database URL and a fresh database token. The frontend and API are configured together; no paid add-ons are needed. See the [Vercel setup guide](docs/vercel-deploy.md) for exact steps and stream/runtime limits.
 
-**Free Render deployment:** the included Blueprint uses a free web service and requires a free remote Turso/libSQL database so accounts survive Render restarts. Follow the [deployment guide](docs/render-deploy.md) and supply the database URL/token in Render. Local development still uses SQLite with no cloud account.
+The existing [Render Blueprint guide](docs/render-deploy.md) remains available, but Render may request a payment method during onboarding even with a free service selected. Local development still uses SQLite with no cloud account.
 
 A free, self-hosted portfolio workspace with React, TypeScript, Chart.js and Node.js/SQLite. No paid dependency or subscription is required to run locally.
 
