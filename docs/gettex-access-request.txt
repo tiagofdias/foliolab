@@ -1,0 +1,24 @@
+To: marketdata@gettex.de
+Subject: Zero-cost real-time data access for Folio Lab, an open-source portfolio application
+
+Hello gettex market-data team,
+
+We are developing Folio Lab, a free, open-source, self-hosted portfolio analysis application covering European shares and UCITS ETFs alongside other asset classes. We would like to integrate an approved real-time gettex feed for portfolio valuations, bid/ask display and charts.
+
+Your published terms describe real-time pre- and post-trade data for vendors without direct exchange fees under a bilateral distribution agreement. Could you provide the agreement and technical onboarding requirements?
+
+The project must remain completely free. Please confirm whether exchange entitlement, data transport, API access and permitted display/redistribution can all be provided without fees, including any third-party service fees. We need to understand permission for personal self-hosted installations, authenticated users of a hosted installation, and a public demo, with any limits or separate requirements for each.
+
+Initial coverage should include these ISINs:
+- IE00BMC38736: VanEck Semiconductor UCITS ETF (Xetra VVSM, WKN A2QC5J)
+- IE00BK5BQT80: Vanguard FTSE All-World UCITS ETF (VWCE)
+- IE00B5BMR087: iShares Core S&P 500 UCITS ETF (SXR8)
+- IE00B4L5Y983: iShares Core MSCI World UCITS ETF (EUNL)
+
+Please confirm gettex coverage and identifiers, and supply the supported protocol, documentation, security master, test credentials/environment, timestamps, quote/trade semantics, heartbeat/recovery rules, entitlement flags and trading calendar.
+
+Please also clarify required attribution and permissions for server fan-out, caching, historical charts, derived portfolio analytics and user exports. We will identify gettex as the valuation venue and distinguish it from the investor's original listing venue.
+
+We will not describe the feed as activated until access, rights and live-session delivery have been verified.
+
+Thank you.
