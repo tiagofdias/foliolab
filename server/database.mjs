@@ -5,22 +5,39 @@ const schema = [
   "CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY,userId TEXT,expires INTEGER)",
   "CREATE TABLE IF NOT EXISTS workspaces(userId TEXT PRIMARY KEY,body TEXT)",
 ];
+function configurationError(message) {
+  const error = new Error(message);
+  error.code = "DATABASE_CONFIGURATION";
+  return error;
+}
 export async function openDatabase(env = process.env) {
-  const remote = env.TURSO_DATABASE_URL;
+  const remote = env.TURSO_DATABASE_URL?.trim();
+  const authToken = env.TURSO_AUTH_TOKEN?.trim();
   const requireRemote = env.REQUIRE_REMOTE_DB === "true" || !!env.VERCEL;
-  if (requireRemote && (!remote || !env.TURSO_AUTH_TOKEN))
-    throw Error(
+  if (requireRemote && (!remote || !authToken))
+    throw configurationError(
       "Persistent storage is required. Set TURSO_DATABASE_URL and TURSO_AUTH_TOKEN before deploying.",
     );
   if (remote) {
-    const url = new URL(remote);
+    let url;
+    try {
+      url = new URL(remote);
+    } catch {
+      throw configurationError(
+        "TURSO_DATABASE_URL must contain the database connection URL (libsql://...), not the auth token. Put the token in TURSO_AUTH_TOKEN.",
+      );
+    }
+    if (authToken && /^(libsql|https?|wss?):\/\//i.test(authToken))
+      throw configurationError(
+        "TURSO_AUTH_TOKEN contains a URL. Put the database URL in TURSO_DATABASE_URL and its token in TURSO_AUTH_TOKEN.",
+      );
     if (requireRemote && !["libsql:", "https:", "wss:"].includes(url.protocol))
-      throw Error(
+      throw configurationError(
         "The deployed database must use an encrypted remote connection.",
       );
     const client = createClient({
       url: remote,
-      authToken: env.TURSO_AUTH_TOKEN || undefined,
+      authToken: authToken || undefined,
     });
     try {
       await client.batch(schema, "write");

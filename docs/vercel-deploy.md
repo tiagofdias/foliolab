@@ -1,5 +1,7 @@
 # Deploy on Vercel Hobby with Turso
 
+For cold starts, daily operation, cron jobs and quota details, see [Vercel operations](vercel-operations.md).
+
 This is the alternative to Render for the personal, non-commercial Folio Lab project. Choose **Hobby**, not a Pro trial. Vercel's Hobby plan is free within its included quotas. No paid Vercel database, storage, Marketplace integration or add-on is required. Account verification requirements remain controlled by the host.
 
 ## Deploy

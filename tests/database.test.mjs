@@ -5,6 +5,23 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { openDatabase } from "../server/database.mjs";
+test("misplaced database tokens produce a safe configuration error without echoing input", async () => {
+  const secret = "private-test-credential-only";
+  await assert.rejects(
+    openDatabase({
+      VERCEL: "1",
+      TURSO_DATABASE_URL: secret,
+      TURSO_AUTH_TOKEN: secret,
+    }),
+    (e) => {
+      assert.equal(e.code, "DATABASE_CONFIGURATION");
+      assert.match(e.message, /not the auth token/);
+      assert.equal(e.input, undefined);
+      assert.ok(!e.stack.includes(secret));
+      return true;
+    },
+  );
+});
 for (const mode of ["local", "libsql"])
   test(`${mode} database preserves accounts, sessions and isolated workspaces across reopen`, async () => {
     const dir = await mkdtemp(join(tmpdir(), "folio-db-"));

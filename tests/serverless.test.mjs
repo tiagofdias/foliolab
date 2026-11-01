@@ -4,6 +4,43 @@ import { spawn } from "node:child_process";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { dataDirectory } from "../server/paths.mjs";
+test("cloud startup errors return safe JSON and keep credentials out of logs", async () => {
+  const secret = "private-test-token-not-a-url";
+  const code = `import http from 'node:http';import api from './api/index.mjs';http.createServer(api).listen(3326,'127.0.0.1',()=>console.log('ready'));`;
+  const child = spawn(process.execPath, ["--input-type=module", "-e", code], {
+    env: {
+      ...process.env,
+      VERCEL: "1",
+      TURSO_DATABASE_URL: secret,
+      TURSO_AUTH_TOKEN: secret,
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let logs = "";
+  child.stderr.on("data", (chunk) => {
+    logs += chunk.toString();
+  });
+  try {
+    await new Promise((ok, bad) => {
+      child.stdout.once("data", ok);
+      child.once("error", bad);
+      child.once("exit", (c) => bad(Error("exit " + c)));
+    });
+    const r = await fetch(
+      "http://127.0.0.1:3326/api/index?__folio_path=health",
+    );
+    assert.equal(r.status, 503);
+    assert.match(r.headers.get("content-type"), /application\/json/);
+    const response = await r.json();
+    assert.equal(response.code, "DATABASE_CONFIGURATION");
+    assert.match(response.error, /TURSO_DATABASE_URL/);
+    assert.ok(!JSON.stringify(response).includes(secret));
+    assert.ok(!logs.includes(secret));
+  } finally {
+    child.kill();
+    await new Promise((ok) => child.once("exit", ok));
+  }
+});
 test("cloud caches use temporary storage while local development retains its data directory", () => {
   assert.equal(dataDirectory({}), "data");
   assert.equal(dataDirectory({ VERCEL: "1" }), join(tmpdir(), "folio-lab"));

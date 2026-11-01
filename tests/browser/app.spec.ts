@@ -1,4 +1,30 @@
 import { test, expect, type Page } from "@playwright/test";
+test("login shows a useful message when hosting returns a non-JSON startup failure", async ({
+  page,
+}) => {
+  await page.route("**/api/auth/me", (route) =>
+    route.fulfill({
+      status: 500,
+      contentType: "text/plain",
+      body: "A server error has occurred\nFUNCTION_INVOCATION_FAILED",
+    }),
+  );
+  await page.route("**/api/auth/login", (route) =>
+    route.fulfill({
+      status: 500,
+      contentType: "text/plain",
+      body: "A server error has occurred\nFUNCTION_INVOCATION_FAILED",
+    }),
+  );
+  await page.goto("/");
+  await page.getByLabel("Email address").fill("test@example.com");
+  await page.getByLabel("Password", { exact: true }).fill("safe-test-password");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
+  await expect(
+    page.getByText(/The server is unavailable \(HTTP 500\)/),
+  ).toBeVisible();
+  await expect(page.getByText(/Unexpected token/)).toHaveCount(0);
+});
 async function demo(page: Page) {
   await page.goto("/");
   await page

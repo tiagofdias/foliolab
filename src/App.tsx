@@ -57,7 +57,15 @@ async function api(path: string, method = "GET", data?: unknown) {
     headers: { "Content-Type": "application/json" },
     body: data ? JSON.stringify(data) : undefined,
   });
-  const value = await r.json();
+  const text = await r.text();
+  let value;
+  try {
+    value = JSON.parse(text);
+  } catch {
+    throw Error(
+      `The server is unavailable (HTTP ${r.status}). Please retry shortly. If this continues, check the deployment logs.`,
+    );
+  }
   if (!r.ok) throw Error(value.error || "Request failed");
   return value;
 }
